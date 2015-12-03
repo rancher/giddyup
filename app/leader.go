@@ -31,10 +31,9 @@ func LowestContainerCreateIndex() error {
 		return err
 	}
 
-	serviceContainers, err := getMyServiceContainerObjs(
-		selfContainer.StackName,
+	serviceContainers, err := mdClient.GetServiceContainers(
 		selfContainer.ServiceName,
-		mdClient,
+		selfContainer.StackName,
 	)
 	if err != nil {
 		return err
@@ -48,20 +47,4 @@ func LowestContainerCreateIndex() error {
 	os.Exit(0)
 
 	return nil
-}
-
-func getMyServiceContainerObjs(stack string, service string, mdClient *metadata.Client) ([]metadata.Container, error) {
-	var serviceContainers = []metadata.Container{}
-	containers, err := mdClient.GetContainers()
-	if err != nil {
-		return nil, err
-	}
-
-	for _, container := range containers {
-		if container.StackName == stack && container.ServiceName == service {
-			serviceContainers = append(serviceContainers, container)
-		}
-	}
-
-	return serviceContainers, nil
 }
