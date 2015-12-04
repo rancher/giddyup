@@ -26,17 +26,23 @@ func ServiceCommand() cli.Command {
 		Subcommands: []cli.Command{
 			{
 				Name:  "wait",
-				Usage: "Wait for service container count to match set scale",
-				Action: func(c *cli.Context) {
-					if err := WaitForServiceScale(c.Int("timeout")); err != nil {
-						logrus.Fatalf("Error: %v", err)
-					}
-				},
-				Flags: []cli.Flag{
-					cli.IntFlag{
-						Name:  "timeout",
-						Usage: "Time in seconds to wait for scale to be achieved. (Default: 600)",
-						Value: 600,
+				Usage: "Wait for service states",
+				Subcommands: []cli.Command{
+					{
+						Name:  "scale",
+						Usage: "Wait for number of service containers to reach set scale",
+						Action: func(c *cli.Context) {
+							if err := WaitForServiceScale(c.Int("timeout")); err != nil {
+								logrus.Fatalf("Error: %v", err)
+							}
+						},
+						Flags: []cli.Flag{
+							cli.IntFlag{
+								Name:  "timeout",
+								Usage: "Time in seconds to wait for scale to be achieved. (Default: 600)",
+								Value: 600,
+							},
+						},
 					},
 				},
 			},
