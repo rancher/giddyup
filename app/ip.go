@@ -139,24 +139,38 @@ func ipStringifyMetadata(c *cli.Context) (string, error) {
 
 	if len(c.Args()) > 0 {
 		split = strings.SplitN(c.Args().First(), "/", 2)
-		if len(split) == 2 {
-			ips, err := getMetadataContainerIPs(split[0], split[1])
-			if err != nil {
-				return rString, err
-			}
-			rString = joinString(
-				c.String("prefix"),
-				c.String("suffix"),
-				c.String("delimiter"),
-				ips,
-			)
-			err = nil
-		} else {
-			err = &StringifyError{"Not enough arguements supplied. Need stack/service"}
+	} else {
+		split, err = getSelfStackServiceNames()
+	}
+
+	if len(split) == 2 {
+		ips, err := getMetadataContainerIPs(split[0], split[1])
+		if err != nil {
+			return rString, err
 		}
+		rString = joinString(
+			c.String("prefix"),
+			c.String("suffix"),
+			c.String("delimiter"),
+			ips,
+		)
+		err = nil
+	} else {
+		err = &StringifyError{"Not enough arguements supplied. Need stack/service or this container is not part of service"}
 	}
 
 	return rString, err
+}
+
+func getSelfStackServiceNames() ([]string, error) {
+	mdClient, _ := metadata.NewClientAndWait(metadataURL)
+
+	selfContainer, err := mdClient.GetSelfContainer()
+	if err != nil {
+		return nil, err
+	}
+
+	return []string{selfContainer.StackName, selfContainer.ServiceName}, err
 }
 
 func getMetadataContainerIPs(stack string, service string) ([]string, error) {
