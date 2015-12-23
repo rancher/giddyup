@@ -1,17 +1,20 @@
 package app
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/cloudnautique/giddyup/election"
 	"github.com/codegangsta/cli"
 	"github.com/rancher/go-rancher-metadata/metadata"
-	"github.com/rancher/leader/election"
 )
 
 var (
-	port  = "proxy-tcp-port"
-	check = "check"
+	port    = "proxy-tcp-port"
+	dstPort = "dst-port"
+	srcPort = "src-port"
+	check   = "check"
 )
 
 func LeaderCommand() cli.Command {
@@ -41,6 +44,26 @@ func LeaderCommand() cli.Command {
 					},
 				},
 			},
+			{
+				Name:   "forward",
+				Usage:  "Listen and forward all port traffic to leader.",
+				Action: appActionForward,
+				Flags: []cli.Flag{
+					cli.IntFlag{
+						Name:  dstPort,
+						Usage: "Leader destination port",
+					},
+					cli.IntFlag{
+						Name:  srcPort,
+						Usage: "Local source port",
+					},
+				},
+			},
+			{
+				Name:   "get",
+				Usage:  "Get the leader of service",
+				Action: appActionGet,
+			},
 		},
 	}
 }
@@ -57,6 +80,40 @@ func appActionCheck(cli *cli.Context) {
 		os.Exit(0)
 	} else {
 		os.Exit(1)
+	}
+}
+
+func appActionGet(cli *cli.Context) {
+	client, err := metadata.NewClientAndWait(metadataURL)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	w := election.New(client, cli.Int(port), cli.Args())
+
+	leader, _, err := w.GetSelfServiceLeader()
+	if err != nil {
+		logrus.Fatalf("Could not get leader. %s", err)
+	}
+	fmt.Printf("%s", leader.PrimaryIp)
+	os.Exit(0)
+}
+
+func appActionForward(cli *cli.Context) {
+	client, err := metadata.NewClientAndWait(metadataURL)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	dst := cli.Int(dstPort)
+
+	if dst == 0 {
+		dst = cli.Int(srcPort)
+	}
+
+	w := election.NewSrcDstWatcher(client, cli.Int(srcPort), dst)
+	if err := w.Forwarder(); err != nil {
+		logrus.Fatal(err)
 	}
 }
 
