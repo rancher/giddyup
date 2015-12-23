@@ -2,11 +2,12 @@
 
 ##  Purpose
 
-Giddyup is a tool to that helps get services started in a Rancher compose stack. It aims to simplify entrypoint and command scripting to start your Docker services. This is a first pass at addressing common tasks when starting up applications in Docker containers.
+Giddyup is a tool to that helps get services started in a Rancher compose stack. It aims to simplify entrypoint and command scripting to start your Docker services. This is a first pass at addressing common tasks when starting up applications in Docker containers on Rancher.
 
 Current capabilities:
  * Get connection strings from DNS or Rancher Metadata.
  * Determine if your container is the leader in the service.
+ * Proxy traffic to the leader
  * Wait for service to have the desired scale.
 
 
@@ -17,7 +18,7 @@ Current capabilities:
 ```
 #!/bin/bash
 ...
-giddyup leader
+giddyup leader check
 if [ "$?" -eq "0" ];then
    echo "I'm the leader"
 fi
@@ -69,11 +70,31 @@ OPTIONS:
 
 ```
 NAME:
-   ./giddyup leader - Determines if this container has lowest start index
+   giddyup leader - Determines if this container has lowest start index
 
 USAGE:
-   ./giddyup leader [arguments...]
+   giddyup leader command [command options] [arguments...]
+
+COMMANDS:
+   check	Check if we are leader and exit.
+   elect	Simple leader election with Rancher
+   forward	Listen and forward all port traffic to leader.
+   get		Get the leader of service
+   help, h	Shows a list of commands or help for one command
+
+OPTIONS:
+   --help, -h	show help
 ```
+`elect` and `forward` are to be used as entrypoints.
+
+If `elect` is used, only the container determined by Rancher (lowest create_index) will run the service. A command must be given to the `elect` command to execute if the container becomes the leader. Otherwise all traffic is forwarded to the leader, and upon election the container will exit.
+
+`forward` should be used in its own container. It works in situations where you want your service running all the time, for replication or something, but want all of the traffic to go to a specific (leader) host. 
+
+a forward example:
+`giddyup leader forward --src-port 3307 --dst-port 3306`
+
+This will listen on port 3307 and forward to port 3306 on the leader. This allows you to put a service behind a load balancer, and still have traffic go to one place. 
 
 ### Service Wait
 

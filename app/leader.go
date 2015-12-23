@@ -20,7 +20,7 @@ var (
 func LeaderCommand() cli.Command {
 	return cli.Command{
 		Name:  "leader",
-		Usage: "Determines if this container has lowest start index",
+		Usage: "Provides a deterministic way to elect, route traffic, and get a leader of a service",
 		Subcommands: []cli.Command{
 			{
 				Name:   "check",
