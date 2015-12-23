@@ -18,6 +18,7 @@ func main() {
 		giddyupApp.IPCommand(),
 		giddyupApp.LeaderCommand(),
 		giddyupApp.ServiceCommand(),
+		giddyupApp.HealthCommand(),
 	}
 
 	app.Run(os.Args)
