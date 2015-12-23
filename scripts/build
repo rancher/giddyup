@@ -3,7 +3,6 @@
 set -e
 
 cd $(dirname $0)/..
-ls -la
 PACKAGE=./gopath/src/$(<.package)
 if [ -L "${PACKAGE}" ]; then
     rm ${PACKAGE}
@@ -16,8 +15,16 @@ fi
 
 export GOPATH="$(pwd)/Godeps/_workspace:$(pwd)/gopath"
 
-GITCOMMIT=$(git rev-parse --short HEAD)
+get_version()
+{
+    VERSION=$(git tag -l --contains HEAD | head -n 1)
+    if [ -z "$VERSION" ]; then
+        VERSION=$(git rev-parse --short HEAD)
+    fi
+}
+
+get_version
 
 mkdir -p bin
 echo Building Giddyup
-CGO_ENABLED=0 go build  -o bin/giddyup 
+CGO_ENABLED=0 go build  -o bin/giddyup -ldflags="-w -X github.com/cloudnautique/giddyup/version.VERSION=${VERSION}"
