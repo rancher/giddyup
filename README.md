@@ -64,7 +64,7 @@ OPTIONS:
    --prefix 		Prepend Entries with this value
    --suffix 		Add this value to the end of each entry.
    --source "metadata"	Source to lookup IPs. [metadata, dns]
-
+   --use-agent-ips	Use agent ips instead of rancher ips, only works with metadata source
 ```
 
 ### leader

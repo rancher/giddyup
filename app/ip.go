@@ -49,6 +49,10 @@ func IPCommand() cli.Command {
 						Usage: "Source to lookup IPs. [metadata, dns]",
 						Value: "metadata",
 					},
+					cli.BoolFlag{
+						Name:  "use-agent-ips",
+						Usage: "Use agent ips instead of rancher ips, only works with metadata source",
+					},
 				},
 			},
 		},
@@ -140,11 +144,16 @@ func ipStringifyMetadata(c *cli.Context) (string, error) {
 	if len(c.Args()) > 0 {
 		split = strings.SplitN(c.Args().First(), "/", 2)
 	} else {
-		split, err = getSelfStackServiceNames()
+		split, err = getSelfStackServiceName()
+	}
+
+	getMetaIPMethod := getMetadataContainerIPs
+	if c.Bool("use-agent-ips") {
+		getMetaIPMethod = getMetadataAgentIPs
 	}
 
 	if len(split) == 2 {
-		ips, err := getMetadataContainerIPs(split[0], split[1])
+		ips, err := getMetaIPMethod(split[0], split[1])
 		if err != nil {
 			return rString, err
 		}
@@ -162,7 +171,7 @@ func ipStringifyMetadata(c *cli.Context) (string, error) {
 	return rString, err
 }
 
-func getSelfStackServiceNames() ([]string, error) {
+func getSelfStackServiceName() ([]string, error) {
 	mdClient, _ := metadata.NewClientAndWait(metadataURL)
 
 	selfContainer, err := mdClient.GetSelfContainer()
@@ -184,6 +193,26 @@ func getMetadataContainerIPs(stack string, service string) ([]string, error) {
 
 	for _, container := range containers {
 		rIPs = append(rIPs, container.PrimaryIp)
+	}
+
+	return rIPs, nil
+}
+
+func getMetadataAgentIPs(stack string, service string) ([]string, error) {
+	rIPs := []string{}
+	mdClient, _ := metadata.NewClientAndWait(metadataURL)
+
+	containers, err := mdClient.GetServiceContainers(service, stack)
+	if err != nil {
+		return rIPs, err
+	}
+
+	for _, container := range containers {
+		host, err := mdClient.GetHost(container.HostUUID)
+		if err != nil {
+			return rIPs, err
+		}
+		rIPs = append(rIPs, host.AgentIP)
 	}
 
 	return rIPs, nil
