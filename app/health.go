@@ -35,5 +35,5 @@ func simpleHealthCheck(c *cli.Context) {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "pong")
+	fmt.Fprintf(w, "OK")
 }
