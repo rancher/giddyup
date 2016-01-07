@@ -9,6 +9,7 @@ Current capabilities:
  * Determine if your container is the leader in the service.
  * Proxy traffic to the leader
  * Wait for service to have the desired scale.
+ * Get the scale of the service
 
 
 ## Examples
@@ -96,19 +97,38 @@ a forward example:
 
 This will listen on port 3307 and forward to port 3306 on the leader. This allows you to put a service behind a load balancer, and still have traffic go to one place. 
 
-### Service Wait
+### Service
 
 ```
 NAME:
-   giddyup service wait - Wait for service states
+   giddyup service - Service actions
 
 USAGE:
-   giddyup service wait command [command options] [arguments...]
+   giddyup service command [command options] [arguments...]
 
 COMMANDS:
-   scale	Wait for number of service containers to reach set scale
+   wait		Wait for service states
+   scale	Get the set scale of the service
+   containers	lists containers in the calling container's service one per line
    help, h	Shows a list of commands or help for one command
 
 OPTIONS:
    --help, -h	show help
 ```
+
+scale will give you the set scale of the service, and giddyup service scale --current will give you the current number of containers running in your service.
+
+### Simple Health Check
+```
+NAME:
+   ./bin/giddyup health - simple healthcheck
+
+USAGE:
+   ./bin/giddyup health [command options] [arguments...]
+
+OPTIONS:
+   --listen-port, -p "1620"	set port to listen on
+```
+
+This check just listens on the port specified (default: 1620) and responds to requests at `http://<ip>:<port>/ping` and responds with 200 OK. Its meant to be run in a sidekick as the entrypoint. It should share the network namespace as your application.
+   

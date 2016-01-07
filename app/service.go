@@ -1,7 +1,9 @@
 package app
 
 import (
+	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/Sirupsen/logrus"
@@ -15,6 +17,24 @@ type timeoutError struct {
 
 func (e *timeoutError) Error() string {
 	return e.message
+}
+
+type containerCollection struct {
+	containers []string
+}
+
+func (c *containerCollection) removeEntry(entry string) {
+	newSlice := []string{}
+	for _, item := range c.containers {
+		if item != entry {
+			newSlice = append(newSlice, item)
+		}
+	}
+	c.containers = newSlice
+}
+
+func (c *containerCollection) printContainers(delim string) {
+	fmt.Print(strings.Join(c.containers, delim))
 }
 
 const metadataURL = "http://rancher-metadata/2015-07-25"
@@ -43,6 +63,32 @@ func ServiceCommand() cli.Command {
 								Value: 600,
 							},
 						},
+					},
+				},
+			},
+			{
+				Name:   "scale",
+				Usage:  "Get the set scale of the service",
+				Action: appActionGetScale,
+				Flags: []cli.Flag{
+					cli.BoolFlag{
+						Name:  "current",
+						Usage: "Get the current number of running containers in this service.",
+					},
+				},
+			},
+			{
+				Name:   "containers",
+				Usage:  "lists containers in the calling container's service one per line",
+				Action: appActionGetServiceContainers,
+				Flags: []cli.Flag{
+					cli.BoolFlag{
+						Name:  "n",
+						Usage: "print space separated list",
+					},
+					cli.BoolFlag{
+						Name:  "exclude-self",
+						Usage: "do not include calling container name in returned list",
 					},
 				},
 			},
@@ -84,4 +130,47 @@ func WaitForServiceScale(timeout int) error {
 	}
 
 	return nil
+}
+
+func appActionGetScale(c *cli.Context) {
+	client, err := metadata.NewClientAndWait(metadataURL)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	service, err := client.GetSelfService()
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	if c.Bool("current") {
+		fmt.Printf("%d", len(service.Containers))
+		os.Exit(0)
+	}
+
+	fmt.Print(service.Scale)
+}
+
+func appActionGetServiceContainers(c *cli.Context) {
+	delimiter := "\n"
+	client, err := metadata.NewClientAndWait(metadataURL)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	service, _ := client.GetSelfService()
+
+	if c.Bool("n") {
+		delimiter = " "
+	}
+
+	containerCollection := &containerCollection{
+		containers: service.Containers,
+	}
+	if c.Bool("exclude-self") {
+		selfContainer, _ := client.GetSelfContainer()
+		containerCollection.removeEntry(selfContainer.Name)
+	}
+
+	containerCollection.printContainers(delimiter)
 }
