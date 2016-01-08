@@ -53,6 +53,10 @@ func IPCommand() cli.Command {
 						Name:  "use-agent-ips",
 						Usage: "Use agent ips instead of rancher ips, only works with metadata source",
 					},
+					cli.BoolFlag{
+						Name:  "use-agent-names",
+						Usage: "Use agent name instead of rancher ips, only works with metadata source",
+					},
 				},
 			},
 		},
@@ -152,6 +156,10 @@ func ipStringifyMetadata(c *cli.Context) (string, error) {
 		getMetaIPMethod = getMetadataAgentIPs
 	}
 
+	if c.Bool("use-agent-names") {
+		getMetaIPMethod = getMetadataAgentNames
+	}
+
 	if len(split) == 2 {
 		ips, err := getMetaIPMethod(split[0], split[1])
 		if err != nil {
@@ -199,23 +207,42 @@ func getMetadataContainerIPs(stack string, service string) ([]string, error) {
 }
 
 func getMetadataAgentIPs(stack string, service string) ([]string, error) {
-	rIPs := []string{}
+	return getMetadataAgentInfoStrings(stack, service, "AgentIP")
+}
+
+func getMetadataAgentNames(stack string, service string) ([]string, error) {
+	return getMetadataAgentInfoStrings(stack, service, "Name")
+}
+
+func getMetadataAgentInfoStrings(stack, service, property string) ([]string, error) {
+	rInfo := []string{}
 	mdClient, _ := metadata.NewClientAndWait(metadataURL)
 
 	containers, err := mdClient.GetServiceContainers(service, stack)
 	if err != nil {
-		return rIPs, err
+		return rInfo, err
 	}
 
 	for _, container := range containers {
 		host, err := mdClient.GetHost(container.HostUUID)
 		if err != nil {
-			return rIPs, err
+			return rInfo, err
 		}
-		rIPs = append(rIPs, host.AgentIP)
+		rInfo = append(rInfo, getHostInfoProperty(&host, property))
 	}
 
-	return rIPs, nil
+	return rInfo, nil
+}
+
+func getHostInfoProperty(host *metadata.Host, property string) string {
+	switch {
+	case property == "Name":
+		return host.Name
+	case property == "AgentIP":
+		return host.AgentIP
+	default:
+		return ""
+	}
 }
 
 func joinString(pfx string, suffix string, delim string, list []string) string {
