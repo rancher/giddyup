@@ -13,7 +13,7 @@ type Service struct {
 	Kind        string                 `json:"kind"`
 	Hostname    string                 `json:"hostname"`
 	Vip         string                 `json:"vip"`
-	CreateIndex string                 `json:"create_index"`
+	CreateIndex int                    `json:"create_index"`
 	UUID        string                 `json:"uuid"`
 	ExternalIps []string               `json:"external_ips"`
 	Sidekicks   []string               `json:"sidekicks"`
