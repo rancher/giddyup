@@ -11,6 +11,8 @@ import (
 	"github.com/rancher/go-rancher-metadata/metadata"
 )
 
+const metadataURL = "http://rancher-metadata/2015-12-19"
+
 type timeoutError struct {
 	message string
 }
@@ -20,13 +22,13 @@ func (e *timeoutError) Error() string {
 }
 
 type containerCollection struct {
-	containers []string
+	containers []metadata.Container
 }
 
 func (c *containerCollection) removeEntry(entry string) {
-	newSlice := []string{}
+	newSlice := []metadata.Container{}
 	for _, item := range c.containers {
-		if item != entry {
+		if item.Name != entry {
 			newSlice = append(newSlice, item)
 		}
 	}
@@ -34,10 +36,14 @@ func (c *containerCollection) removeEntry(entry string) {
 }
 
 func (c *containerCollection) printContainers(delim string) {
-	fmt.Print(strings.Join(c.containers, delim))
-}
+	names := []string{}
 
-const metadataURL = "http://rancher-metadata/2015-07-25"
+	for _, container := range c.containers {
+		names = append(names, container.Name)
+	}
+
+	fmt.Print(strings.Join(names, delim))
+}
 
 func ServiceCommand() cli.Command {
 	return cli.Command{

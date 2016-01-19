@@ -33,6 +33,11 @@ func (m *Client) SendRequest(path string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("Error %v accessing %v path", resp.StatusCode, path)
+	}
+
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -61,6 +66,20 @@ func (m *Client) GetSelfContainer() (Container, error) {
 	}
 
 	return container, nil
+}
+
+func (m *Client) GetSelfServiceByName(name string) (Service, error) {
+	resp, err := m.SendRequest("/self/stack/services/" + name)
+	var service Service
+	if err != nil {
+		return service, err
+	}
+
+	if err = json.Unmarshal(resp, &service); err != nil {
+		return service, err
+	}
+
+	return service, nil
 }
 
 func (m *Client) GetSelfService() (Service, error) {
