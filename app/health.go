@@ -19,21 +19,48 @@ func HealthCommand() cli.Command {
 				Usage: "set port to listen on",
 				Value: 1620,
 			},
+			cli.StringFlag{
+				Name:  "check-command",
+				Usage: "command to execute check",
+			},
+			cli.StringFlag{
+				Name:  "on-failure-command",
+				Usage: "command to execute if command fails",
+			},
 		},
 	}
 }
 
-func simpleHealthCheck(c *cli.Context) {
-	port := c.String("listen-port")
-	logrus.Infof("Listening on port: %s", port)
+type HealthContext struct {
+	port           string
+	checkCommand   string
+	failureCommand string
+}
 
-	http.HandleFunc("/ping", handler)
-	err := http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
+type HealthHandler struct {
+	ctx *HealthContext
+}
+
+func NewHealthContext(c *cli.Context) *HealthContext {
+	context := &HealthContext{}
+	context.port = c.String("listen-port")
+	context.checkCommand = c.String("check-command")
+	context.failureCommand = c.String("on-failure-command")
+
+	return context
+}
+
+func simpleHealthCheck(c *cli.Context) {
+	context := NewHealthContext(c)
+	logrus.Infof("Listening on port: %s", context.port)
+
+	http.Handle("/ping", context)
+	err := http.ListenAndServe(fmt.Sprintf(":%s", context.port), nil)
 	if err != nil {
 		logrus.Fatal(err)
 	}
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func (h *HealthContext) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "OK")
 }
