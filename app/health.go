@@ -1,8 +1,10 @@
 package app
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"os/exec"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
@@ -37,10 +39,6 @@ type HealthContext struct {
 	failureCommand string
 }
 
-type HealthHandler struct {
-	ctx *HealthContext
-}
-
 func NewHealthContext(c *cli.Context) *HealthContext {
 	context := &HealthContext{}
 	context.port = c.String("listen-port")
@@ -61,6 +59,41 @@ func simpleHealthCheck(c *cli.Context) {
 	}
 }
 
+type Response struct {
+	Type   string `json:"type"`
+	Status int    `json:"status"`
+	Code   string `json:"code"`
+}
+
 func (h *HealthContext) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "OK")
+	message := "OK"
+	code := 200
+
+	if err := runCommand(h.checkCommand); err != nil {
+		code = 503
+		message = "Failed Health Check. Running: " + h.failureCommand
+		if err = runCommand(h.failureCommand); err != nil {
+			message += "....[Failed]"
+		}
+		message += "....[Success]"
+	}
+	response, _ := json.Marshal(getResponse(message, code))
+
+	fmt.Fprintf(w, string(response))
+}
+
+func getResponse(msg string, code int) *Response {
+	return &Response{
+		Type:   msg,
+		Status: code,
+		Code:   http.StatusText(code),
+	}
+}
+
+func runCommand(command string) error {
+	if command != "" {
+		cmd := exec.Command(command)
+		return cmd.Run()
+	}
+	return nil
 }
