@@ -11,6 +11,10 @@ Current capabilities:
  * Wait for service to have the desired scale.
  * Get the scale of the service
 
+## Versions
+
+Giddyup >= v0.6.0 requires Rancher Server versions >=v0.56.1
+Giddyup versions < v0.6.0 should continue working. 
 
 ## Examples
 
