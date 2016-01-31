@@ -1,8 +1,10 @@
 package app
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"os/exec"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
@@ -19,21 +21,79 @@ func HealthCommand() cli.Command {
 				Usage: "set port to listen on",
 				Value: 1620,
 			},
+			cli.StringFlag{
+				Name:  "check-command",
+				Usage: "command to execute check",
+			},
+			cli.StringFlag{
+				Name:  "on-failure-command",
+				Usage: "command to execute if command fails",
+			},
 		},
 	}
 }
 
-func simpleHealthCheck(c *cli.Context) {
-	port := c.String("listen-port")
-	logrus.Infof("Listening on port: %s", port)
+type HealthContext struct {
+	port           string
+	checkCommand   string
+	failureCommand string
+}
 
-	http.HandleFunc("/ping", handler)
-	err := http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
+func NewHealthContext(c *cli.Context) *HealthContext {
+	context := &HealthContext{}
+	context.port = c.String("listen-port")
+	context.checkCommand = c.String("check-command")
+	context.failureCommand = c.String("on-failure-command")
+
+	return context
+}
+
+func simpleHealthCheck(c *cli.Context) {
+	context := NewHealthContext(c)
+	logrus.Infof("Listening on port: %s", context.port)
+
+	http.Handle("/ping", context)
+	err := http.ListenAndServe(fmt.Sprintf(":%s", context.port), nil)
 	if err != nil {
 		logrus.Fatal(err)
 	}
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "OK")
+type Response struct {
+	Type   string `json:"type"`
+	Status int    `json:"status"`
+	Code   string `json:"code"`
+}
+
+func (h *HealthContext) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	message := "OK"
+	code := 200
+
+	if err := runCommand(h.checkCommand); err != nil {
+		code = 503
+		message = "Failed Health Check. Running: " + h.failureCommand
+		if err = runCommand(h.failureCommand); err != nil {
+			message += "....[Failed]"
+		}
+		message += "....[Success]"
+	}
+	response, _ := json.Marshal(getResponse(message, code))
+
+	fmt.Fprintf(w, string(response))
+}
+
+func getResponse(msg string, code int) *Response {
+	return &Response{
+		Type:   msg,
+		Status: code,
+		Code:   http.StatusText(code),
+	}
+}
+
+func runCommand(command string) error {
+	if command != "" {
+		cmd := exec.Command(command)
+		return cmd.Run()
+	}
+	return nil
 }
