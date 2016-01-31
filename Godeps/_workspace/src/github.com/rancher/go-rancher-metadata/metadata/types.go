@@ -22,6 +22,7 @@ type Service struct {
 	Labels      map[string]string      `json:"labels"`
 	Links       map[string]string      `json:"links"`
 	Metadata    map[string]interface{} `json:"metadata"`
+	Token       string                 `json:"token"`
 }
 
 type Container struct {
