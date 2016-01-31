@@ -14,7 +14,7 @@
 		},
 		{
 			"ImportPath": "github.com/rancher/go-rancher-metadata/metadata",
-			"Rev": "f854893a184436a69982adc5dffa63e30f217e07"
+			"Rev": "593dcecf7122b25df7ad5d0d3d73fdbcc8bee3be"
 		},
 		{
 			"ImportPath": "golang.org/x/sys/unix",
