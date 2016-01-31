@@ -1,7 +1,6 @@
 package app
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os/exec"
@@ -59,35 +58,22 @@ func simpleHealthCheck(c *cli.Context) {
 	}
 }
 
-type Response struct {
-	Type   string `json:"type"`
-	Status int    `json:"status"`
-	Code   string `json:"code"`
-}
-
 func (h *HealthContext) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	message := "OK"
-	code := 200
+	code := http.StatusOK
 
 	if err := runCommand(h.checkCommand); err != nil {
-		code = 503
-		message = "Failed Health Check. Running: " + h.failureCommand
+		code = http.StatusServiceUnavailable
+		message = "Failed Health Check. Attempting to Run: " + h.failureCommand
+		cmdStatus := "....[Success]"
 		if err = runCommand(h.failureCommand); err != nil {
-			message += "....[Failed]"
+			cmdStatus = "....[Failed]"
 		}
-		message += "....[Success]"
+		message += cmdStatus
 	}
-	response, _ := json.Marshal(getResponse(message, code))
 
-	fmt.Fprintf(w, string(response))
-}
-
-func getResponse(msg string, code int) *Response {
-	return &Response{
-		Type:   msg,
-		Status: code,
-		Code:   http.StatusText(code),
-	}
+	w.WriteHeader(code)
+	fmt.Fprintln(w, message)
 }
 
 func runCommand(command string) error {
