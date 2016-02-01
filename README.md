@@ -133,6 +133,8 @@ USAGE:
 
 OPTIONS:
    --listen-port, -p "1620"	set port to listen on
+   --check-command 		command to execute check
+   --on-failure-command 	command to execute if command fails
 ```
 
 This check just listens on the port specified (default: 1620) and responds to requests at `http://<ip>:<port>/ping` and responds with 200 OK. Its meant to be run in a sidekick as the entrypoint. It should share the network namespace as your application.
