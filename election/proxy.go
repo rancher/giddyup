@@ -107,7 +107,7 @@ func (w *Watcher) Forwarder() error {
 
 func (w *Watcher) Watch() error {
 	w.forward = NewTcpProxy(w.port, func() string {
-		return w.leader.PrimaryIp
+		return fmt.Sprintf("%s:%d", w.leader.PrimaryIp, w.port)
 	})
 
 	go w.client.OnChange(2, func(version string) {
