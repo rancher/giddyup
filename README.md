@@ -10,6 +10,7 @@ Current capabilities:
  * Proxy traffic to the leader
  * Wait for service to have the desired scale.
  * Get the scale of the service
+ * Get Managed-IP of the container (/self/container/primary_ip)
 
 ## Versions
 
@@ -55,7 +56,9 @@ connection_string=$(./giddyup ip stringify --suffix :2181 zookeeper/zookeeper)
 
 ## Usage
 
-### ip stringify
+### IP
+
+#### stringify
 ```
 NAME:
    giddyup ip stringify - Prints a joined list of IPs
@@ -70,6 +73,16 @@ OPTIONS:
    --source "metadata"	Source to lookup IPs. [metadata, dns]
    --use-agent-ips	Use agent ips instead of rancher ips, only works with metadata source
    --use-agent-names	Use agent name instead of rancher ips, only works with metadata source
+```
+
+#### myip
+```
+NAME:
+   giddyup ip myip - Prints the IP of the container
+
+USAGE:
+   giddyup ip myip
+
 ```
 
 ### leader
