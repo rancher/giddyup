@@ -52,7 +52,19 @@ func simpleHealthCheck(c *cli.Context) {
 	logrus.Infof("Listening on port: %s", context.port)
 
 	http.Handle("/ping", context)
-	err := http.ListenAndServe(fmt.Sprintf(":%s", context.port), nil)
+	done := make(chan error)
+
+	go func() {
+		done <- http.ListenAndServe(fmt.Sprintf(":%s", context.port), nil)
+	}()
+
+	if len(c.Args()) > 0 {
+		go func() {
+			done <- runCommand(c.Args()[0], c.Args()[1:]...)
+		}()
+	}
+
+	err := <-done
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -76,9 +88,9 @@ func (h *HealthContext) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, message)
 }
 
-func runCommand(command string) error {
+func runCommand(command string, args ...string) error {
 	if command != "" {
-		cmd := exec.Command(command)
+		cmd := exec.Command(command, args...)
 		return cmd.Run()
 	}
 	return nil
