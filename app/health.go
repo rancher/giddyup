@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"os/exec"
 
 	"github.com/Sirupsen/logrus"
@@ -91,6 +92,8 @@ func (h *HealthContext) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func runCommand(command string, args ...string) error {
 	if command != "" {
 		cmd := exec.Command(command, args...)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
 		return cmd.Run()
 	}
 	return nil
