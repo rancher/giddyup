@@ -74,12 +74,16 @@ func ServiceCommand() cli.Command {
 			},
 			{
 				Name:   "scale",
-				Usage:  "Get the set scale of the service",
+				Usage:  "Get the desired or current scale of the service",
 				Action: appActionGetScale,
 				Flags: []cli.Flag{
+					cli.StringFlag{
+						Name:  "name",
+						Usage: "The name of the service. (Default is the 'self' service)",
+					},
 					cli.BoolFlag{
 						Name:  "current",
-						Usage: "Get the current number of running containers in this service.",
+						Usage: "Get the current number of running containers in the service.",
 					},
 				},
 			},
@@ -144,7 +148,13 @@ func appActionGetScale(c *cli.Context) {
 		logrus.Fatal(err)
 	}
 
-	service, err := client.GetSelfService()
+	var service metadata.Service
+	if c.String("name") != "" {
+		service, err = client.GetSelfServiceByName(c.String("name"))
+	} else {
+		service, err = client.GetSelfService()
+	}
+
 	if err != nil {
 		logrus.Fatal(err)
 	}
