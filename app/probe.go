@@ -16,7 +16,8 @@ func ProbeCommand() cli.Command {
 
   return cli.Command{
     Name:  "probe",
-    Usage: "Probe a TCP/HTTP(S) endpoint to determine if it is healthy (provide endpoint as argument)",
+    Usage: "Probe a TCP/HTTP(S) endpoint to determine if it is healthy",
+    ArgsUsage: "<endpoint>",
     Action: probe,
     Flags: []cli.Flag{
       cli.DurationFlag{
@@ -49,7 +50,6 @@ func ProbeCommand() cli.Command {
 
 func probe(c *cli.Context) error {
   if c.Args().First() == "" {
-    fmt.Println("Please provide an endpoint.")
     cli.ShowCommandHelp(c, "probe")
     os.Exit(1)
   }
