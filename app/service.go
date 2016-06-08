@@ -74,13 +74,9 @@ func ServiceCommand() cli.Command {
 			},
 			{
 				Name:   "scale",
-				Usage:  "Print the desired scale of the service",
+				Usage:  "Print the desired scale of the service (name may be specified as a positional argument)",
 				Action: appActionGetScale,
 				Flags: []cli.Flag{
-					cli.StringFlag{
-						Name:  "name",
-						Usage: "The name of the service. (Default: containing service)",
-					},
 					cli.BoolFlag{
 						Name:  "current",
 						Usage: "Print the current scale of the service",
@@ -142,15 +138,17 @@ func WaitForServiceScale(timeout int) error {
 	return nil
 }
 
-func appActionGetScale(c *cli.Context) {
+func appActionGetScale(c *cli.Context) error {
 	client, err := metadata.NewClientAndWait(metadataURL)
 	if err != nil {
 		logrus.Fatal(err)
 	}
 
 	var service metadata.Service
-	if c.String("name") != "" {
-		service, err = client.GetSelfServiceByName(c.String("name"))
+
+	name := c.Args().First()
+	if name != "" {
+		service, err = client.GetSelfServiceByName(name)
 	} else {
 		service, err = client.GetSelfService()
 	}
@@ -165,9 +163,10 @@ func appActionGetScale(c *cli.Context) {
 	}
 
 	fmt.Print(service.Scale)
+	return nil
 }
 
-func appActionGetServiceContainers(c *cli.Context) {
+func appActionGetServiceContainers(c *cli.Context) error {
 	delimiter := "\n"
 	client, err := metadata.NewClientAndWait(metadataURL)
 	if err != nil {
@@ -189,4 +188,5 @@ func appActionGetServiceContainers(c *cli.Context) {
 	}
 
 	containerCollection.printContainers(delimiter)
+	return nil
 }

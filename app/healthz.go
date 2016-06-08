@@ -13,11 +13,6 @@ import (
 )
 
 func HealthzCommand() cli.Command {
-
-  endpointFlag := cli.StringFlag{
-    Name:  "endpoint, e",
-    Usage: "TCP/HTTP(S) Endpoint URL, for example tcp://example:4000",
-  }
   
   timeoutFlag := cli.DurationFlag{
     Name: "timeout, t",
@@ -45,23 +40,21 @@ func HealthzCommand() cli.Command {
 
   return cli.Command{
     Name:  "healthz",
-    Usage: "Test if an endpoint is healthy",
+    Usage: "Test if a TCP/HTTP(S) endpoint is healthy (provide endpoint as argument)",
     Subcommands: []cli.Command{
       {
         Name: "single",
-        Usage: "Test once if an endpoint is healthy",
+        Usage: "Perform only one health check",
         Action: singleHealthCheck,
         Flags: []cli.Flag{
-          endpointFlag,
           timeoutFlag,
         },
       },
       {
         Name:  "loop",
-        Usage: "Continuously test an endpoint until it is healthy",
+        Usage: "Continuously perform health checks until one succeeds",
         Action: loopHealthCheck,
         Flags: []cli.Flag{
-          endpointFlag,
           timeoutFlag,
           backoffFlag,
           minFlag,
@@ -79,6 +72,7 @@ func singleHealthCheck(c *cli.Context) error {
     fmt.Println(err)
     os.Exit(1)
   }
+
   fmt.Println("OK")
   return nil
 }
@@ -89,10 +83,12 @@ func loopHealthCheck(c *cli.Context) error {
   backoff := c.Float64("backoff")
   loops := 0
   delay := min
+
   for err := healthCheck(c); err != nil; err = healthCheck(c) {
     fmt.Println(err)
     time.Sleep(delay)
     loops += 1
+    
     if delay < max {
       delay = time.Duration(float64(min) * math.Pow(backoff, float64(loops)))
     }
@@ -100,16 +96,20 @@ func loopHealthCheck(c *cli.Context) error {
       delay = max
     }
   }
+
   fmt.Println("OK")
   return nil
 }
 
 func healthCheck(c *cli.Context) error {
+  endpoint := c.Args().First()
   timeout := c.Duration("timeout")
-  url, err := url.Parse(c.String("endpoint"))
+
+  url, err := url.Parse(endpoint)
   if err != nil {
     return err
   }
+
   switch url.Scheme {
   case "tcp":
     var conn net.Conn
@@ -122,11 +122,11 @@ func healthCheck(c *cli.Context) error {
       Timeout: timeout,
     }
     var resp *http.Response
-    resp, err = client.Get(c.String("endpoint"))
-    if err != nil {
-      return err
-    }
+    resp, err = client.Get(endpoint)
+
     switch {
+    case err != nil:
+      return err
     case resp.StatusCode >= 200 && resp.StatusCode <= 299:
       return nil
     default:

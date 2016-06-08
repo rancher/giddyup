@@ -68,7 +68,7 @@ func LeaderCommand() cli.Command {
 	}
 }
 
-func appActionCheck(cli *cli.Context) {
+func appActionCheck(cli *cli.Context) error {
 	client, err := metadata.NewClientAndWait(metadataURL)
 	if err != nil {
 		logrus.Fatal(err)
@@ -81,9 +81,10 @@ func appActionCheck(cli *cli.Context) {
 	} else {
 		os.Exit(1)
 	}
+	return nil
 }
 
-func appActionGet(cli *cli.Context) {
+func appActionGet(cli *cli.Context) error {
 	client, err := metadata.NewClientAndWait(metadataURL)
 	if err != nil {
 		logrus.Fatal(err)
@@ -97,9 +98,10 @@ func appActionGet(cli *cli.Context) {
 	}
 	fmt.Printf("%s", leader.PrimaryIp)
 	os.Exit(0)
+	return nil
 }
 
-func appActionForward(cli *cli.Context) {
+func appActionForward(cli *cli.Context) error {
 	client, err := metadata.NewClientAndWait(metadataURL)
 	if err != nil {
 		logrus.Fatal(err)
@@ -115,9 +117,10 @@ func appActionForward(cli *cli.Context) {
 	if err := w.Forwarder(); err != nil {
 		logrus.Fatal(err)
 	}
+	return nil
 }
 
-func appActionElect(cli *cli.Context) {
+func appActionElect(cli *cli.Context) error {
 	client, err := metadata.NewClientAndWait(metadataURL)
 	if err != nil {
 		logrus.Fatal(err)
@@ -127,4 +130,5 @@ func appActionElect(cli *cli.Context) {
 	if err := w.Watch(); err != nil {
 		logrus.Fatal(err)
 	}
+	return nil
 }
