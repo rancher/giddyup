@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 	"github.com/rancher/go-rancher-metadata/metadata"
 )
 
@@ -74,16 +74,16 @@ func ServiceCommand() cli.Command {
 			},
 			{
 				Name:   "scale",
-				Usage:  "Get the desired or current scale of the service",
+				Usage:  "Print the desired scale of the service",
 				Action: appActionGetScale,
 				Flags: []cli.Flag{
 					cli.StringFlag{
 						Name:  "name",
-						Usage: "The name of the service. (Default is the 'self' service)",
+						Usage: "The name of the service. (Default: containing service)",
 					},
 					cli.BoolFlag{
 						Name:  "current",
-						Usage: "Get the current number of running containers in the service.",
+						Usage: "Print the current scale of the service",
 					},
 				},
 			},

@@ -7,7 +7,7 @@ import (
 	"os/exec"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 func HealthCommand() cli.Command {

@@ -6,7 +6,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/cloudnautique/giddyup/election"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 	"github.com/rancher/go-rancher-metadata/metadata"
 )
 
