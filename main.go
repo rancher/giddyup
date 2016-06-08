@@ -19,7 +19,7 @@ func main() {
 		giddyupApp.LeaderCommand(),
 		giddyupApp.ServiceCommand(),
 		giddyupApp.HealthCommand(),
-		giddyupApp.HealthzCommand(),
+		giddyupApp.ProbeCommand(),
 	}
 
 	app.Run(os.Args)
