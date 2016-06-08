@@ -31,17 +31,17 @@ func ProbeCommand() cli.Command {
       },
       cli.Float64Flag{
         Name:  "backoff, b",
-        Usage: "Rate at which to back off from retries, must be >= 1",
+        Usage: "(Loop) Rate at which to back off from retries, must be >= 1",
         Value: 1.0,
       },
       cli.DurationFlag{
         Name:  "min, m",
-        Usage: "Minimum time to wait before retrying",
+        Usage: "(Loop) Minimum time to wait before retrying",
         Value: 1 * time.Second,
       },
       cli.DurationFlag{
         Name:  "max, x",
-        Usage: "Maximum time to wait before retrying",
+        Usage: "(Loop) Maximum time to wait before retrying",
         Value: 120 * time.Second,
       },
     },
