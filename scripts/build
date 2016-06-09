@@ -13,7 +13,7 @@ if [ ! -e "${PACKAGE}" ]; then
     ln -s $(pwd) ${PACKAGE}
 fi
 
-export GOPATH="$(pwd)/Godeps/_workspace:$(pwd)/gopath"
+export GO15VENDOREXPERIMENT=1
 
 get_version()
 {
