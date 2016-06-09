@@ -5,7 +5,7 @@ import (
 
 	giddyupApp "github.com/cloudnautique/giddyup/app"
 	"github.com/cloudnautique/giddyup/version"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 func main() {
@@ -19,6 +19,7 @@ func main() {
 		giddyupApp.LeaderCommand(),
 		giddyupApp.ServiceCommand(),
 		giddyupApp.HealthCommand(),
+		giddyupApp.ProbeCommand(),
 	}
 
 	app.Run(os.Args)

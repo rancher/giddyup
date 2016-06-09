@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 	"github.com/rancher/go-rancher-metadata/metadata"
 )
 
@@ -74,12 +74,12 @@ func ServiceCommand() cli.Command {
 			},
 			{
 				Name:   "scale",
-				Usage:  "Get the set scale of the service",
+				Usage:  "Print the desired scale of the service (name may be specified as a positional argument)",
 				Action: appActionGetScale,
 				Flags: []cli.Flag{
 					cli.BoolFlag{
 						Name:  "current",
-						Usage: "Get the current number of running containers in this service.",
+						Usage: "Print the current scale of the service",
 					},
 				},
 			},
@@ -138,13 +138,21 @@ func WaitForServiceScale(timeout int) error {
 	return nil
 }
 
-func appActionGetScale(c *cli.Context) {
+func appActionGetScale(c *cli.Context) error {
 	client, err := metadata.NewClientAndWait(metadataURL)
 	if err != nil {
 		logrus.Fatal(err)
 	}
 
-	service, err := client.GetSelfService()
+	var service metadata.Service
+
+	name := c.Args().First()
+	if name != "" {
+		service, err = client.GetSelfServiceByName(name)
+	} else {
+		service, err = client.GetSelfService()
+	}
+
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -155,9 +163,10 @@ func appActionGetScale(c *cli.Context) {
 	}
 
 	fmt.Print(service.Scale)
+	return nil
 }
 
-func appActionGetServiceContainers(c *cli.Context) {
+func appActionGetServiceContainers(c *cli.Context) error {
 	delimiter := "\n"
 	client, err := metadata.NewClientAndWait(metadataURL)
 	if err != nil {
@@ -179,4 +188,5 @@ func appActionGetServiceContainers(c *cli.Context) {
 	}
 
 	containerCollection.printContainers(delimiter)
+	return nil
 }

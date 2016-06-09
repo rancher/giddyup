@@ -7,7 +7,7 @@ import (
 	"os/exec"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 func HealthCommand() cli.Command {
@@ -48,7 +48,7 @@ func NewHealthContext(c *cli.Context) *HealthContext {
 	return context
 }
 
-func simpleHealthCheck(c *cli.Context) {
+func simpleHealthCheck(c *cli.Context) error {
 	context := NewHealthContext(c)
 	logrus.Infof("Listening on port: %s", context.port)
 
@@ -69,6 +69,7 @@ func simpleHealthCheck(c *cli.Context) {
 	if err != nil {
 		logrus.Fatal(err)
 	}
+	return nil
 }
 
 func (h *HealthContext) ServeHTTP(w http.ResponseWriter, r *http.Request) {
