@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	metadataUrl = "http://rancher-metadata/2015-07-25"
+	metadataUrl = "http://rancher-metadata/2015-12-19"
 )
 
 func main() {
