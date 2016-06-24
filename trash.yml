@@ -1,14 +1,9 @@
-package: github.com/cloudnautique/giddyup
+# trash.conf
 
-import:
-- package: github.com/Sirupsen/logrus
-  version: v0.9.0
+# package
+github.com/cloudnautique/giddyup
 
-- package: github.com/codegangsta/cli
-  version: v1.2.0
-
-- package: github.com/rancher/go-rancher-metadata
-  version: 3336d4004ef4ad0809bf7131124a74b90f5bfa40
-
-- package: golang.org/x/sys/unix
-  version: 833a04a10549a95dc34458c195cbad61bbb6cb4d
+github.com/Sirupsen/logrus	v0.10.0-19-gf3cfb45
+github.com/rancher/go-rancher-metadata	930aa73
+github.com/urfave/cli	v1.17.0-85-g4205e9c
+golang.org/x/sys	62bee03

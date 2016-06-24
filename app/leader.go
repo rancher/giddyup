@@ -6,8 +6,8 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/cloudnautique/giddyup/election"
-	"github.com/urfave/cli"
 	"github.com/rancher/go-rancher-metadata/metadata"
+	"github.com/urfave/cli"
 )
 
 var (
@@ -61,7 +61,7 @@ func LeaderCommand() cli.Command {
 			},
 			{
 				Name:   "get",
-				Usage:  "Get the leader of service",
+				Usage:  "Get Rancher IP the leader of service. If you want, you can get can get underlying hostname or agent_ip",
 				Action: appActionGet,
 			},
 		},
@@ -96,9 +96,33 @@ func appActionGet(cli *cli.Context) error {
 	if err != nil {
 		logrus.Fatalf("Could not get leader. %s", err)
 	}
-	fmt.Printf("%s", leader.PrimaryIp)
-	os.Exit(0)
-	return nil
+
+	switch {
+	case len(cli.Args()) == 0:
+		fmt.Printf("%s", leader.PrimaryIp)
+		os.Exit(0)
+
+	case cli.Args()[0] == "host":
+		host, err := client.GetHost(leader.HostUUID)
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("%s", host.Hostname)
+		os.Exit(0)
+
+	case cli.Args()[0] == "agent_ip":
+		host, err := client.GetHost(leader.HostUUID)
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("%s", host.AgentIP)
+		os.Exit(0)
+
+	}
+
+	return fmt.Errorf("Unrecognized arg: (%s) nothing, host and agent_ip are only allowed args", cli.Args()[0])
 }
 
 func appActionForward(cli *cli.Context) error {
