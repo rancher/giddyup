@@ -1,0 +1,11 @@
+#!/bin/bash
+set -e
+
+cd $(dirname $0)/..
+
+ARCH=${ARCH:?"ARCH not set"}
+SUFFIX=""
+[ "${ARCH}" != "amd64" ] && SUFFIX="_${ARCH}"
+
+mkdir -p ./dist/artifacts
+tar cvJf ./dist/artifacts/giddyup${SUFFIX}.tar.xz -C ./bin/ .
