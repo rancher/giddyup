@@ -67,7 +67,7 @@ func IPCommand() cli.Command {
 	}
 }
 
-func ipMyIpAction(c *cli.Context) {
+func ipMyIpAction(c *cli.Context) error {
 	mdClient, _ := metadata.NewClientAndWait(metadataURL)
 
 	selfContainer, err := mdClient.GetSelfContainer()
@@ -75,9 +75,10 @@ func ipMyIpAction(c *cli.Context) {
 		logrus.Fatalf("Failed to find IP: %v", err)
 	}
 	fmt.Print(selfContainer.PrimaryIp)
+	return nil
 }
 
-func ipStringifyAction(c *cli.Context) {
+func ipStringifyAction(c *cli.Context) error {
 	str := ""
 	var err error
 
@@ -94,6 +95,7 @@ func ipStringifyAction(c *cli.Context) {
 	}
 
 	fmt.Print(str)
+	return nil
 }
 
 func ipStringifyDNS(c *cli.Context) (string, error) {
