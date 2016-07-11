@@ -75,6 +75,8 @@ func ipMyIpAction(c *cli.Context) error {
 		logrus.Fatalf("Failed to find IP: %v", err)
 	}
 	fmt.Print(selfContainer.PrimaryIp)
+
+	return nil
 }
 
 func ipStringifyAction(c *cli.Context) error {
@@ -94,6 +96,8 @@ func ipStringifyAction(c *cli.Context) error {
 	}
 
 	fmt.Print(str)
+
+	return nil
 }
 
 func ipStringifyDNS(c *cli.Context) (string, error) {
