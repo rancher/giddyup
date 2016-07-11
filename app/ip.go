@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/urfave/cli"
 	"github.com/rancher/go-rancher-metadata/metadata"
+	"github.com/urfave/cli"
 )
 
 type StringifyError struct {
@@ -58,16 +58,16 @@ func IPCommand() cli.Command {
 						Usage: "Use agent name instead of rancher ips, only works with metadata source",
 					},
 				},
-			},{
-				Name:  "myip",
-				Usage: "Prints the containers Rancher managed IP",
+			}, {
+				Name:   "myip",
+				Usage:  "Prints the containers Rancher managed IP",
 				Action: ipMyIpAction,
 			},
 		},
 	}
 }
 
-func ipMyIpAction(c *cli.Context) {
+func ipMyIpAction(c *cli.Context) error {
 	mdClient, _ := metadata.NewClientAndWait(metadataURL)
 
 	selfContainer, err := mdClient.GetSelfContainer()
@@ -77,7 +77,7 @@ func ipMyIpAction(c *cli.Context) {
 	fmt.Print(selfContainer.PrimaryIp)
 }
 
-func ipStringifyAction(c *cli.Context) {
+func ipStringifyAction(c *cli.Context) error {
 	str := ""
 	var err error
 
