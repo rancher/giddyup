@@ -44,6 +44,11 @@ func ProbeCommand() cli.Command {
         Usage: "(Loop) Maximum time to wait before retrying",
         Value: 120 * time.Second,
       },
+      cli.IntFlag{
+        Name:  "num, n",
+        Usage: "(Loop) Maximum number of requests to perform before declaring unhealthy. 0 for infinite",
+        Value: 0,
+      },
     },
   }
 }
@@ -58,13 +63,17 @@ func probe(c *cli.Context) error {
     min := c.Duration("min")
     max := c.Duration("max")
     backoff := c.Float64("backoff")
+    num := c.Int("num")
     loops := 0
     delay := min
 
     for err := healthCheck(c); err != nil; err = healthCheck(c) {
       fmt.Println(err)
-      time.Sleep(delay)
       loops += 1
+      if num != 0 && loops == num {
+        os.Exit(1)
+      }
+      time.Sleep(delay)
       
       if delay < max {
         delay = time.Duration(float64(min) * math.Pow(backoff, float64(loops)))
