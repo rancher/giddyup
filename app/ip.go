@@ -62,6 +62,10 @@ func IPCommand() cli.Command {
 				Name:   "myip",
 				Usage:  "Prints the containers Rancher managed IP",
 				Action: ipMyIpAction,
+			}, {
+				Name:   "public",
+				Usage:  "Prints the containers port mapped managed IP",
+				Action: ipPublicAction,
 			},
 		},
 	}
@@ -75,6 +79,19 @@ func ipMyIpAction(c *cli.Context) error {
 		logrus.Fatalf("Failed to find IP: %v", err)
 	}
 	fmt.Print(selfContainer.PrimaryIp)
+
+	return nil
+}
+
+func ipPublicAction(c *cli.Context) error {
+	mdClient, _ := metadata.NewClientAndWait(metadataURL)
+
+	selfContainer, err := mdClient.GetSelfContainer()
+	if err != nil {
+		logrus.Fatalf("Failed to find IP: %v", err)
+	}
+
+	fmt.Printf("%q", strings.Split(selfContainer.Ports[0], ":")[0])
 
 	return nil
 }
