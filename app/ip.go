@@ -91,7 +91,14 @@ func ipPublicAction(c *cli.Context) error {
 		logrus.Fatalf("Failed to find IP: %v", err)
 	}
 
-	fmt.Printf("%q", strings.Split(selfContainer.Ports[0], ":")[0])
+	if len(selfContainer.Ports) > 0 {
+		// split 53.129.140.240:3002:80/tcp by : to access ip
+		parts := strings.Split(selfContainer.Ports[0], ":")
+
+		if len(parts) > 0 {
+			fmt.Print(parts[0])
+		}
+	}
 
 	return nil
 }
