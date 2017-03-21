@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/cloudnautique/giddyup/election"
+	"github.com/rancher/giddyup/election"
 	"github.com/rancher/go-rancher-metadata/metadata"
 	"github.com/urfave/cli"
 )
