@@ -15,11 +15,12 @@ func main() {
 	app.Usage = "Entrypoint functions for Rancher"
 
 	app.Commands = []cli.Command{
+		giddyupApp.ExecCommand(),
+		giddyupApp.HealthCommand(),
 		giddyupApp.IPCommand(),
 		giddyupApp.LeaderCommand(),
-		giddyupApp.ServiceCommand(),
-		giddyupApp.HealthCommand(),
 		giddyupApp.ProbeCommand(),
+		giddyupApp.ServiceCommand(),
 	}
 
 	app.Run(os.Args)
