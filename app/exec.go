@@ -9,6 +9,7 @@ import (
 
 	"os/exec"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
@@ -30,6 +31,7 @@ func execCommand(c *cli.Context) error {
 	if c.Bool("secret-envs") {
 		envs, err := filesToMap("/run/secrets")
 		if err != nil {
+			logrus.Error(err)
 			return err
 		}
 
