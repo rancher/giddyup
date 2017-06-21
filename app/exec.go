@@ -128,7 +128,7 @@ func readSourceFiles(files []string) (map[string]string, error) {
 
 		scanner := bufio.NewScanner(f)
 		for scanner.Scan() {
-			pair := strings.Split(scanner.Text(), "=")
+			pair := strings.SplitN(scanner.Text(), "=", 2)
 			if len(pair) == 2 {
 				envs[pair[0]] = pair[1]
 			}
