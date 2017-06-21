@@ -11,11 +11,12 @@ Current capabilities:
  * Wait for service to have the desired scale.
  * Get the scale of the service
  * Get Managed-IP of the container (/self/container/primary_ip)
+ * Serve as a simple entrypoint
 
 ## Versions
 
-Giddyup >= v0.6.0 requires Rancher Server versions >=v0.56.1
-Giddyup versions < v0.6.0 should continue working. 
+ * Giddyup >= v0.6.0 requires Rancher Server versions >=v0.56.1
+ * Giddyup versions < v0.6.0 should continue working. 
 
 ## Examples
 
@@ -73,6 +74,29 @@ OPTIONS:
    --source "metadata"	Source to lookup IPs. [metadata, dns]
    --use-agent-ips	Use agent ips instead of rancher ips, only works with metadata source
    --use-agent-names	Use agent name instead of rancher ips, only works with metadata source
+```
+#### Entrypoint (exec)
+```
+NAME:
+   giddyup exec - exec out to a command
+
+USAGE:
+   giddyup exec [command options] [arguments...]
+
+OPTIONS:
+   --secret-envs          reads /run/secrets and sets env vars
+   --wait-for-file value  wait for a file to exist, assumes something else is creating it. This flag can be used more then once for multiple files
+   --source-file value    Source an environment file before executing. Can use the flag multiple times
+```
+
+example:
+```
+version: '2'
+services:
+  myapp:
+    image: blah
+    entrypoint: /opt/rancher/bin/giddyup exec --wait-for-file /etc/default/myappenvs --source /etc/default/myappenvs myapp
+...
 ```
 
 #### myip
