@@ -66,7 +66,7 @@ func (w *Watcher) getLeader() (metadata.Container, bool, error) {
 	}
 
 	w.leader = leader
-	return leader, leader.PrimaryIp == selfContainer.PrimaryIp, nil
+	return leader, leader.Uuid == selfContainer.Uuid, nil
 }
 
 func (w *Watcher) Forwarder() error {
