@@ -4,6 +4,6 @@
 github.com/rancher/giddyup
 
 github.com/Sirupsen/logrus	            v0.10.0-19-gf3cfb45
-github.com/rancher/go-rancher-metadata	930aa73
+github.com/rancher/go-rancher-metadata	60977d6
 github.com/urfave/cli	                v1.17.0-85-g4205e9c
 golang.org/x/sys	                    62bee03
