@@ -3,7 +3,13 @@
 # package
 github.com/rancher/giddyup
 
-github.com/Sirupsen/logrus	            v0.10.0-19-gf3cfb45
-github.com/rancher/go-rancher-metadata	930aa73
-github.com/urfave/cli	                v1.17.0-85-g4205e9c
-golang.org/x/sys	                    62bee03
+github.com/Sirupsen/logrus	                  v1.0.3
+github.com/rancher/go-rancher-metadata        60977d6
+github.com/urfave/cli	                        v1.17.0-85-g4205e9c
+golang.org/x/sys	                            62bee03
+github.com/rancher/os/config/cloudinit        be2c404
+github.com/coreos/yaml                        v1
+github.com/coreos/go-systemd                  v4
+github.com/docker/docker                      b40c87254f587af7cad8e8128f061a2a7f367343 https://github.com/rancher/docker
+github.com/godbus/dbus                        v3
+golang.org/x/crypto                           2f3083f6163ef51179ad42ed523a18c9a1141467

@@ -16,11 +16,11 @@ type Watcher struct {
 	command []string
 	port    int
 	dstPort int
-	client  *metadata.Client
+	client  metadata.Client
 	forward *TcpProxy
 }
 
-func New(client *metadata.Client, port int, command []string) *Watcher {
+func New(client metadata.Client, port int, command []string) *Watcher {
 	return &Watcher{
 		command: command,
 		port:    port,
@@ -28,7 +28,7 @@ func New(client *metadata.Client, port int, command []string) *Watcher {
 	}
 }
 
-func NewSrcDstWatcher(client *metadata.Client, srcPort, dstPort int) *Watcher {
+func NewSrcDstWatcher(client metadata.Client, srcPort, dstPort int) *Watcher {
 	return &Watcher{
 		command: []string{},
 		port:    srcPort,

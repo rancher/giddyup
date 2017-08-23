@@ -69,7 +69,7 @@ func LeaderCommand() cli.Command {
 }
 
 func appActionCheck(cli *cli.Context) error {
-	client, err := metadata.NewClientAndWait(metadataURL)
+	client, err := metadata.NewClientAndWait(cli.GlobalString("metadata-url"))
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -85,7 +85,7 @@ func appActionCheck(cli *cli.Context) error {
 }
 
 func appActionGet(cli *cli.Context) error {
-	client, err := metadata.NewClientAndWait(metadataURL)
+	client, err := metadata.NewClientAndWait(cli.GlobalString("metadata-url"))
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -126,7 +126,7 @@ func appActionGet(cli *cli.Context) error {
 }
 
 func appActionForward(cli *cli.Context) error {
-	client, err := metadata.NewClientAndWait(metadataURL)
+	client, err := metadata.NewClientAndWait(cli.GlobalString("metadata-url"))
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -145,7 +145,7 @@ func appActionForward(cli *cli.Context) error {
 }
 
 func appActionElect(cli *cli.Context) error {
-	client, err := metadata.NewClientAndWait(metadataURL)
+	client, err := metadata.NewClientAndWait(cli.GlobalString("metadata-url"))
 	if err != nil {
 		logrus.Fatal(err)
 	}

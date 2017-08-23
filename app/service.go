@@ -7,11 +7,11 @@ import (
 	"time"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/urfave/cli"
 	"github.com/rancher/go-rancher-metadata/metadata"
+	"github.com/urfave/cli"
 )
 
-const metadataURL = "http://rancher-metadata/2015-12-19"
+// const metadataURL = "http://rancher-metadata/2015-12-19"
 
 type timeoutError struct {
 	message string
@@ -57,11 +57,12 @@ func ServiceCommand() cli.Command {
 					{
 						Name:  "scale",
 						Usage: "Wait for number of service containers to reach set scale",
-						Action: func(c *cli.Context) {
-							if err := WaitForServiceScale(c.Int("timeout")); err != nil {
-								logrus.Fatalf("Error: %v", err)
-							}
-						},
+						//Action: func(c *cli.Context) {
+						//if err := WaitForServiceScale(c.Int("timeout")); err != nil {
+						//logrus.Fatalf("Error: %v", err)
+						//}
+						//},
+						Action: WaitForServiceScale,
 						Flags: []cli.Flag{
 							cli.IntFlag{
 								Name:  "timeout",
@@ -102,8 +103,9 @@ func ServiceCommand() cli.Command {
 	}
 }
 
-func WaitForServiceScale(timeout int) error {
-	mdClient, err := metadata.NewClientAndWait(metadataURL)
+func WaitForServiceScale(c *cli.Context) error {
+	timeout := c.Int("timeout")
+	mdClient, err := metadata.NewClientAndWait(c.GlobalString("metadata-url"))
 	if err != nil {
 		return err
 	}
@@ -139,7 +141,7 @@ func WaitForServiceScale(timeout int) error {
 }
 
 func appActionGetScale(c *cli.Context) error {
-	client, err := metadata.NewClientAndWait(metadataURL)
+	client, err := metadata.NewClientAndWait(c.GlobalString("metadata-url"))
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -168,7 +170,7 @@ func appActionGetScale(c *cli.Context) error {
 
 func appActionGetServiceContainers(c *cli.Context) error {
 	delimiter := "\n"
-	client, err := metadata.NewClientAndWait(metadataURL)
+	client, err := metadata.NewClientAndWait(c.GlobalString("metadata-url"))
 	if err != nil {
 		logrus.Fatal(err)
 	}

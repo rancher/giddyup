@@ -68,7 +68,7 @@ func IPCommand() cli.Command {
 }
 
 func ipMyIpAction(c *cli.Context) error {
-	mdClient, _ := metadata.NewClientAndWait(metadataURL)
+	mdClient, _ := metadata.NewClientAndWait(c.GlobalString("metadata-url"))
 
 	selfContainer, err := mdClient.GetSelfContainer()
 	if err != nil {
@@ -161,12 +161,16 @@ func testDNSResolves(host string) bool {
 func ipStringifyMetadata(c *cli.Context) (string, error) {
 	split := []string{}
 	rString := ""
-	var err error
+
+	mdClient, err := metadata.NewClientAndWait(c.GlobalString("metadata-url"))
+	if err != nil {
+		return rString, err
+	}
 
 	if len(c.Args()) > 0 {
 		split = strings.SplitN(c.Args().First(), "/", 2)
 	} else {
-		split, err = getSelfStackServiceName()
+		split, err = getSelfStackServiceName(mdClient)
 	}
 
 	getMetaIPMethod := getMetadataContainerIPs
@@ -179,7 +183,7 @@ func ipStringifyMetadata(c *cli.Context) (string, error) {
 	}
 
 	if len(split) == 2 {
-		ips, err := getMetaIPMethod(split[0], split[1])
+		ips, err := getMetaIPMethod(split[0], split[1], mdClient)
 		if err != nil {
 			return rString, err
 		}
@@ -197,9 +201,7 @@ func ipStringifyMetadata(c *cli.Context) (string, error) {
 	return rString, err
 }
 
-func getSelfStackServiceName() ([]string, error) {
-	mdClient, _ := metadata.NewClientAndWait(metadataURL)
-
+func getSelfStackServiceName(mdClient metadata.Client) ([]string, error) {
 	selfContainer, err := mdClient.GetSelfContainer()
 	if err != nil {
 		return nil, err
@@ -208,9 +210,8 @@ func getSelfStackServiceName() ([]string, error) {
 	return []string{selfContainer.StackName, selfContainer.ServiceName}, err
 }
 
-func getMetadataContainerIPs(stack string, service string) ([]string, error) {
+func getMetadataContainerIPs(stack string, service string, mdClient metadata.Client) ([]string, error) {
 	rIPs := []string{}
-	mdClient, _ := metadata.NewClientAndWait(metadataURL)
 
 	containers, err := mdClient.GetServiceContainers(service, stack)
 	if err != nil {
@@ -224,17 +225,16 @@ func getMetadataContainerIPs(stack string, service string) ([]string, error) {
 	return rIPs, nil
 }
 
-func getMetadataAgentIPs(stack string, service string) ([]string, error) {
-	return getMetadataAgentInfoStrings(stack, service, "AgentIP")
+func getMetadataAgentIPs(stack string, service string, mdClient metadata.Client) ([]string, error) {
+	return getMetadataAgentInfoStrings(stack, service, "AgentIP", mdClient)
 }
 
-func getMetadataAgentNames(stack string, service string) ([]string, error) {
-	return getMetadataAgentInfoStrings(stack, service, "Name")
+func getMetadataAgentNames(stack string, service string, mdClient metadata.Client) ([]string, error) {
+	return getMetadataAgentInfoStrings(stack, service, "Name", mdClient)
 }
 
-func getMetadataAgentInfoStrings(stack, service, property string) ([]string, error) {
+func getMetadataAgentInfoStrings(stack, service, property string, mdClient metadata.Client) ([]string, error) {
 	rInfo := []string{}
-	mdClient, _ := metadata.NewClientAndWait(metadataURL)
 
 	containers, err := mdClient.GetServiceContainers(service, stack)
 	if err != nil {

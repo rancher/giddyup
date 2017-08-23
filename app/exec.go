@@ -12,6 +12,7 @@ import (
 	"os/exec"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/rancher/go-rancher-metadata/metadata"
 	"github.com/urfave/cli"
 )
 
@@ -24,6 +25,10 @@ func ExecCommand() cli.Command {
 			cli.BoolFlag{
 				Name:  "secret-envs",
 				Usage: "reads /run/secrets and sets env vars",
+			},
+			cli.BoolFlag{
+				Name:  "cloud-init",
+				Usage: "Process /self/service/metadata/cloud-init (currently only write_files)",
 			},
 			cli.StringSliceFlag{
 				Name:  "wait-for-file",
@@ -50,6 +55,15 @@ func execCommand(c *cli.Context) error {
 		}
 	}
 
+	if c.Bool("cloud-init") {
+		mdClient, err := metadata.NewClientAndWait(c.GlobalString("metadata-url"))
+		if err != nil {
+			return err
+		}
+		ProcessCloudInit(mdClient)
+	}
+
+	// This is a fairly naive approach for now.
 	if len(c.StringSlice("wait-for-file")) > 0 {
 		err := waitForFiles(c.StringSlice("wait-for-file"))
 		if err != nil {

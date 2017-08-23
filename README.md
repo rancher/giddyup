@@ -85,6 +85,7 @@ USAGE:
 
 OPTIONS:
    --secret-envs          reads /run/secrets and sets env vars
+   --cloud-init           Process /self/service/metadata/cloud-init (currently only write_files)
    --wait-for-file value  wait for a file to exist, assumes something else is creating it. This flag can be used more then once for multiple files
    --source-file value    Source an environment file before executing. Can use the flag multiple times
 ```
@@ -98,6 +99,47 @@ services:
     entrypoint: /opt/rancher/bin/giddyup exec --wait-for-file /etc/default/myappenvs --source /etc/default/myappenvs myapp
 ...
 ```
+
+The `--cloud init` option looks in the userdefined metadata for cloud-init.write_files. This follows the same syntax as Rancher OS #cloud-init.
+
+```
+version: '2'
+services:
+  fluentd:
+    metadata:
+      cloud-init:
+        write_files:
+          - path: /fluentd/etc/fluent.conf
+            content: |
+              <source>
+                @type tail
+                path /var/lib/docker/containers/*/*-json.log
+                pos_file /fluentd/log/fluentd-docker.pos
+                ime_format %Y-%m-%dT%H:%M:%S
+                tag docker.*
+                format json
+              </source>
+              # Using filter to add container IDs to each event
+              <filter docker.var.lib.docker.containers.*.*.log>
+                type record_transformer
+                <record>
+                  container_id $${tag_parts[5]}
+                </record>
+              </filter>
+              <match **>
+                @type file
+                path /fluentd/log/dockerlogs
+                time_slice_format %Y%m%d
+                time_slice_wait 10m
+                time_format %Y%m%dT%H%M%S%z
+                compress gzip
+                utc
+              </match>
+
+``` 
+
+In this case, the contents will be placed in /fluentd/etc/fluent.conf 
+
 
 #### myip
 ```
