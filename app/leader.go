@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Sirupsen/logrus"
-	"github.com/rancher/giddyup/election"
+	"github.com/sirupsen/logrus"
+	"github.com/johnnyisme/giddyup/election"
 	"github.com/rancher/go-rancher-metadata/metadata"
 	"github.com/urfave/cli"
 )
