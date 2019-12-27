@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	giddyupApp "github.com/rancher/giddyup/app"
-	"github.com/rancher/giddyup/version"
+	giddyupApp "github.com/johnnyisme/giddyup/app"
+	"github.com/johnnyisme/giddyup/version"
 	"github.com/urfave/cli"
 )
 

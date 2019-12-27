@@ -27,4 +27,4 @@ get_version
 
 mkdir -p bin
 echo Building Giddyup
-CGO_ENABLED=0 go build  -o bin/giddyup -ldflags="-w -X github.com/rancher/giddyup/version.VERSION=${VERSION}"
+CGO_ENABLED=0 go build  -o bin/giddyup -ldflags="-w -X github.com/johnnyisme/giddyup/version.VERSION=${VERSION}"

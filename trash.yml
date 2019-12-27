@@ -1,7 +1,7 @@
 # trash.conf
 
 # package
-github.com/rancher/giddyup
+github.com/johnnyisme/giddyup
 
 github.com/sirupsen/logrus	                  v1.0.3
 github.com/rancher/go-rancher-metadata        60977d6
